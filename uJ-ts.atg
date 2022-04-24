@@ -1,0 +1,153 @@
+/*
+Verificacao Lexica, Sintatica, Semantica e Tabela de Simbolos
+*/
+
+
+COMPILER uJts
+
+    private TabSym ts;
+    private Obj objMethAtual;
+
+    public void erro(String msg) {
+        errors.SemErr(t.line, t.col, msg);
+    }
+
+CHARACTERS
+    digit = '0'..'9'.
+    letter = 'a'..'z' + 'A'..'Z'.
+    anyConst = ANY - '\n' - '\t' - '\r'.
+
+TOKENS
+    number = digit { digit }.
+    ident = letter { letter | digit }.
+    charConst = '\'' anyConst  '\'' .
+
+PRAGMAS
+	option = "$d".	(. ts.dump(); .)
+
+COMMENTS FROM "//" TO "\n"
+
+IGNORE '\r' + '\n' + '\t'
+
+PRODUCTIONS
+
+uJts = "program" ident        (. objMethAtual = null;
+                                 ts = new TabSym(this);
+                                 ts.abrirEscopo("Global");
+                              .)
+
+{ConstDecl
+| VarDecl
+| ClassDecl
+}
+"{" {MethodDecl
+} "}"                         (. ts.fecharEscopo(); .)
+.
+
+Type<out objVar retorno>
+=
+ident                         (. retorno = new objVar(t.val, false); .)
+["[" "]"                      (. retorno.vetor = true; .)
+].
+
+ConstDecl                     (. Obj o; objVar objRet; .)
+ = "final" Type<out objRet>   (. o = ts.buscar(objRet.nome); .)
+  ident                       (. o = ts.inserir(Obj.Const, t.val, o.tipo); .)
+  "=" (number                 (. o.val = Integer.parseInt(t.val); .)
+  ) ";"
+  .
+
+VarDecl                       (. Obj o; objVar objRet; .)
+= Type<out objRet>            (. o = ts.buscar(objRet.nome); .)
+ident                         (. o = ts.inserir(Obj.Var, t.val, o.tipo); .)
+{"," ident                    (. o = ts.inserir(Obj.Var, t.val, o.tipo); .)
+}
+";"
+.
+
+ClassDecl = "class" ident "{" {VarDecl} "}".
+
+MethodDecl                     (. objVar objRet; .)
+= Type<out objRet>             (. Obj o = ts.buscar(objRet.nome); .)
+  ident                        (. Struct tipo = ts.buscar(objRet.nome).tipo;
+                                  objMethAtual = ts.inserir(Obj.Meth, t.val, tipo);
+                                  ts.abrirEscopo("Meth " + t.val); .)
+  "(" [FormPars
+  ] ")" {VarDecl} Block        (. ts.fecharEscopo(); .)
+  .
+
+FormPars              (. objVar objRet; .)
+= Type<out objRet>           (. Obj o = ts.buscar(objRet.nome);  .)
+ident                        (. ts.inserir(Obj.Var, t.val, o.tipo); 
+                                objMethAtual.nPars++;
+                             .)
+{","
+Type<out objRet>             (. o = ts.buscar(objRet.nome); .)
+ident                        (. ts.inserir(Obj.Var, t.val, o.tipo);
+                                objMethAtual.nPars++;
+                             .)
+}.
+
+Block = "{" {Statement} "}".
+
+Statement                         (. Operand operand = null; .)
+ =
+Designator<out operand> ("=" Expr<out operand> | ActPars) ";"
+| "if" "(" Condition ")" Statement ["else" Statement]
+| "while" "(" Condition ")" Statement
+| "return" [Expr<out operand>] ";"
+| "read" "(" Designator<out operand> ")" ";"
+| "print" "(" Expr<out operand> ["," number] ")" ";"
+| Block
+| ";".
+
+ActPars                           (. Operand operand = null; .)
+ = "(" [ Expr<out operand>
+ {"," Expr<out operand>
+ } ] ")".
+
+Condition                         (. Operand operand = null; .)
+ = Expr<out operand>
+ Relop
+ Expr<out operand> .
+
+Relop = "==" | "!=" | ">" | ">=" | "<" | "<=".
+
+Expr<out Operand operand>
+ = ["-"] Term<out operand>        (. if (operand.tipo != ts.tipoInt)
+                                       erro("operando deve ser do tipo int");
+                                  .)
+ {Addop
+ Term<out operand>                (. if (operand.tipo != ts.tipoInt)
+                                        erro("operando deve ser do tipo int");
+                                  .)
+ }.
+
+Term<out Operand operand>          (. operand = null; .)
+ = Factor<out operand>
+  {Mulop
+  Factor<out operand>
+  }.
+
+Factor<out Operand operand>         (. operand = null; .)
+ = Designator<out operand>
+ [ActPars]
+| number                            (. operand = new Operand(Integer.parseInt(t.val)); .)
+| charConst
+| "new" ident ["[" Expr<out operand> "]"]
+| "(" Expr<out operand> ")".
+
+Designator<out Operand operand>  (. Operand op2; .)
+ = ident                         (. operand = new Operand(ts.buscar(t.val)); .)
+ {"."
+ ident                           (. operand = new Operand(ts.buscar(t.val)); .)
+ | "[" Expr<out op2>             (. if (op2.tipo != ts.tipoInt)
+                                      erro("Tipo da expressao deve ser inteiro");
+                                 .)
+  "]"}.
+
+Addop = "+" | "-".
+
+Mulop = "*" | "/" | "%".
+
+END uJts.

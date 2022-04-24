@@ -1,0 +1,22 @@
+program P
+	final int size = 10;
+    int x, i;
+{
+    int imprime (int y, int z) {
+      print(y);
+      print(z);
+$d
+    }
+	void main()
+	{
+       i = 0;
+		while (i < size) {
+            a = 1;
+			i = i + 10;
+		}
+		read(x);
+		while (x != 0) {
+			read(x);
+		}
+	}
+}
