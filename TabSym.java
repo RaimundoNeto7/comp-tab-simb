@@ -4,6 +4,7 @@ public class TabSym {
     static Escopo escopoAtual;
     static int nivelAtual;
     static Struct tipoInt;
+    static Struct tipoChar;
     static Struct semTipo;
     static Obj objTamVetor;
     static Obj semObj;
@@ -62,9 +63,11 @@ public class TabSym {
         semObj = new Obj(Obj.Var, "null", semTipo);
 
         tipoInt = new Struct(Struct.Int);
+        tipoChar = new Struct(Struct.Char);
         semTipo = new Struct(Struct.Nenhum);
 
         inserir(Obj.Tipo, "int", tipoInt);
+        inserir(Obj.Tipo, "char", tipoChar);
         inserir(Obj.Tipo, "void", semTipo);
     }
 
@@ -74,6 +77,9 @@ public class TabSym {
         switch (tipo.cat) {
             case Struct.Int:
                 cat = "Tipo: Int";
+                break;
+            case Struct.Char:
+                cat = "Tipo: Char";
                 break;
             case Struct.Vetor:
                 cat = "Tipo: Vetor";
@@ -96,7 +102,10 @@ public class TabSym {
             System.out.print("  ");
         switch (o.cat) {
             case Obj.Const:
-                System.out.print("Const " + o.nome + " = " + o.val + " (");
+                if (o.tipo == tipoInt)
+                    System.out.print("Const " + o.nome + " = " + o.val + " (");
+                else if (o.tipo == tipoChar)
+                    System.out.print("Const " + o.nome + " = " + o.valChar + " (");
                 break;
             case Obj.Var:
                 System.out.print("Var " + o.nome + " end: " + o.end + " nivel=" + o.nivel + " (");

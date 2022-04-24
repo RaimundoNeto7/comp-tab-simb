@@ -54,6 +54,7 @@ ConstDecl                     (. Obj o; objVar objRet; .)
  = "final" Type<out objRet>   (. o = ts.buscar(objRet.nome); .)
   ident                       (. o = ts.inserir(Obj.Const, t.val, o.tipo); .)
   "=" (number                 (. o.val = Integer.parseInt(t.val); .)
+  | charConst                 (. o.valChar = t.val.charAt(1); .)
   ) ";"
   .
 
@@ -114,12 +115,12 @@ Condition                         (. Operand operand = null; .)
 Relop = "==" | "!=" | ">" | ">=" | "<" | "<=".
 
 Expr<out Operand operand>
- = ["-"] Term<out operand>        (. if (operand.tipo != ts.tipoInt)
-                                       erro("operando deve ser do tipo int");
+ = ["-"] Term<out operand>        (. if ((operand.tipo != ts.tipoInt) && (operand.tipo != ts.tipoChar))
+                                       erro("operando deve ser do tipo int ou char");
                                   .)
  {Addop
- Term<out operand>                (. if (operand.tipo != ts.tipoInt)
-                                        erro("operando deve ser do tipo int");
+ Term<out operand>                (. if ((operand.tipo != ts.tipoInt) && (operand.tipo != ts.tipoChar))
+                                        erro("operando deve ser do tipo int ou char");
                                   .)
  }.
 
@@ -133,7 +134,7 @@ Factor<out Operand operand>         (. operand = null; .)
  = Designator<out operand>
  [ActPars]
 | number                            (. operand = new Operand(Integer.parseInt(t.val)); .)
-| charConst
+| charConst                         (. operand = new Operand(t.val.charAt(1)); .)
 | "new" ident ["[" Expr<out operand> "]"]
 | "(" Expr<out operand> ")".
 

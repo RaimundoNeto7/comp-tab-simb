@@ -9,6 +9,7 @@ class Obj {
     Struct tipo;
     Obj prox;
     int val; // valor pra Const
+    char valChar; // valor pra Const do tipo Char
     int end; // Endereco pra Var e Meth
     int nivel; // Var: 0 = global, 1 = local
     int nPars; // Meth: nro de parametros
