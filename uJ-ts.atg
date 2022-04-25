@@ -91,9 +91,14 @@ ident                        (. ts.inserir(Obj.Var, t.val, o.tipo);
 
 Block = "{" {Statement} "}".
 
-Statement                         (. Operand operand = null; .)
+Statement                         (. Operand operand = null; 
+                                     Operand operand2 = null; .)
  =
-Designator<out operand> ("=" Expr<out operand> | ActPars) ";"
+Designator<out operand> ("=" Expr<out operand2> | ActPars) ";" (. Operand op1 = operand; 
+                                                                  Operand op2 = operand2; 
+                                                                  if(op1.tipo != op2.tipo) {
+                                                                    erro("atribuicao errada");
+                                                                  } .)
 | "if" "(" Condition ")" Statement ["else" Statement]
 | "while" "(" Condition ")" Statement
 | "return" [Expr<out operand>] ";" (.
@@ -121,20 +126,31 @@ Condition                         (. Operand operand = null; .)
 
 Relop = "==" | "!=" | ">" | ">=" | "<" | "<=".
 
-Expr<out Operand operand>
- = ["-"] Term<out operand>        (. if (operand.tipo != ts.tipoInt && operand.tipo != ts.tipoChar)
-                                       erro("operando deve ser do tipo int ou char");
+Expr<out Operand operand>         (. .)      
+ = ["-"] Term<out operand>        (.  Operand o1 = operand;
+                                      if (o1.tipo != ts.tipoInt && o1.tipo != ts.tipoChar)
+                                        erro("operando deve ser do tipo int ou char");
                                   .)
  {Addop
- Term<out operand>                (. if (operand.tipo != ts.tipoInt && operand.tipo != ts.tipoChar)
+ Term<out operand>                (. Operand o2 = operand;
+                                      if (o2.tipo != ts.tipoInt && o2.tipo != ts.tipoChar)
                                         erro("operando deve ser do tipo int ou char");
+                                      
+                                      if(o1.tipo != o2.tipo){
+                                        erro("tipos incompativeis nas operacoes");
+                                      }
                                   .)
  }.
 
 Term<out Operand operand>          (. operand = null; .)
- = Factor<out operand>
+ = Factor<out operand>             (. Operand o1 = operand; .)
   {Mulop
-  Factor<out operand>
+  Factor<out operand>              (. Operand o2 = operand;
+  
+                                      if(o1.tipo != o2.tipo){
+                                        erro("tipos incompativeis nas operacoes");
+                                      } 
+                                    .)   
   }.
 
 Factor<out Operand operand>         (. operand = null; .)
