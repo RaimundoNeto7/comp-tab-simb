@@ -120,9 +120,13 @@ ActPars                           (. Operand operand = null; .)
  } ] ")".
 
 Condition                         (. Operand operand = null; .)
- = Expr<out operand>
+ = Expr<out operand>              (. Operand op1 = operand; .)
  Relop
- Expr<out operand> .
+ Expr<out operand>               (. Operand op2 = operand; 
+                                     if(op1.tipo != op2.tipo){
+                                       erro("comparacao incompativel");
+                                     } .)
+ .
 
 Relop = "==" | "!=" | ">" | ">=" | "<" | "<=".
 
