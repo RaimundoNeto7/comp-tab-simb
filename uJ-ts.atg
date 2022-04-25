@@ -96,7 +96,7 @@ Statement                         (. Operand operand = null; .)
 Designator<out operand> ("=" Expr<out operand> | ActPars) ";"
 | "if" "(" Condition ")" Statement ["else" Statement]
 | "while" "(" Condition ")" Statement
-| "return" [Expr<out operand>] ";"
+| "return" [Expr<out operand>] ";"    (. ts.checkReturn(operand); .)
 | "read" "(" Designator<out operand> ")" ";"
 | "print" "(" Expr<out operand> ["," number] ")" ";"
 | Block

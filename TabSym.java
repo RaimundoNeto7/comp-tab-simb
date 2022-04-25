@@ -56,6 +56,31 @@ public class TabSym {
         nivelAtual--;
     }
 
+    Struct obterRetornoDoEscopo() {
+        Escopo s = escopoAtual;
+        if (escopoAtual.acima != null) {
+            s = escopoAtual.acima;
+        }
+        Obj p = s.locais;
+        while (p.prox != null) {
+            p = p.prox;
+        }
+        return p.tipo;
+    }
+
+    void checkReturn(Operand op) {
+        Struct tipoRetorno = obterRetornoDoEscopo();
+        if (op == null) {
+            if (tipoRetorno == semTipo) {
+                return;
+            } else {
+                parser.erro("tipo do retorno inválido");
+            }
+        } else if (op.tipo != tipoRetorno) {
+            parser.erro("tipo do retorno inválido");
+        }
+    }
+
     public void iniciar() {
         Obj o;
         escopoAtual = new Escopo("Universo", null);
