@@ -58,6 +58,12 @@ public class Operand {
         tipo = TabSym.tipoInt;
     }
 
+    public Operand(char val) {
+        cat = Const;
+        this.val = val;
+        tipo = TabSym.tipoChar;
+    }
+
     public Operand(int cat, int val, Struct tipo) {
         this.cat = cat;
         this.val = val;

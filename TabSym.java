@@ -4,6 +4,7 @@ public class TabSym {
     static Escopo escopoAtual;
     static int nivelAtual;
     static Struct tipoInt;
+    static Struct tipoChar;
     static Struct semTipo;
     static Obj objTamVetor;
     static Obj semObj;
@@ -62,9 +63,11 @@ public class TabSym {
         semObj = new Obj(Obj.Var, "null", semTipo);
 
         tipoInt = new Struct(Struct.Int);
+        tipoChar = new Struct(Struct.Char);
         semTipo = new Struct(Struct.Nenhum);
 
         inserir(Obj.Tipo, "int", tipoInt);
+        inserir(Obj.Tipo, "char", tipoChar);
         inserir(Obj.Tipo, "void", semTipo);
     }
 
@@ -77,6 +80,9 @@ public class TabSym {
                 break;
             case Struct.Vetor:
                 cat = "Tipo: Vetor";
+                break;
+            case Struct.Char:
+                cat = "Tipo: Char";
                 break;
             default:
                 cat = "Tipo: Void";
